@@ -57,15 +57,24 @@ function App() {
       console.log("Summary:", summary);
       console.log("Metrics:", metrics);
       const allowed = [
-  "id", "count", "min_gap", "max_gap", "mean_gap",
-  "median_gap", "std_gap", "p75", "p90", "p95", "p99"
-];
+        "id",
+        "count",
+        "min_gap",
+        "max_gap",
+        "mean_gap",
+        "median_gap",
+        "std_gap",
+        "p75",
+        "p90",
+        "p95",
+        "p99",
+      ];
 
-const filteredSummary = summary.map(row =>
-  Object.fromEntries(
-    Object.entries(row).filter(([key]) => allowed.includes(key))
-  )
-);
+      const filteredSummary = summary.map((row) =>
+        Object.fromEntries(
+          Object.entries(row).filter(([key]) => allowed.includes(key))
+        )
+      );
 
       setSummary(filteredSummary || []);
       // setSummary(summary || []);
@@ -142,9 +151,7 @@ const filteredSummary = summary.map(row =>
     if (!searchTerm.trim()) return summary;
 
     const term = searchTerm.toLowerCase();
-    return summary.filter((row) =>
-      String(row.id).toLowerCase().includes(term)
-    );
+    return summary.filter((row) => String(row.id).toLowerCase().includes(term));
   }, [summary, searchTerm]);
 
   const visibleSummary = React.useMemo(() => {
@@ -166,7 +173,11 @@ const filteredSummary = summary.map(row =>
       >
         <h2>1. Upload CSV</h2>
         <input type="file" accept=".csv" onChange={handleFileChange} />
-        <button onClick={handleUpload} disabled={loading} style={{ marginLeft: 10 }}>
+        <button
+          onClick={handleUpload}
+          disabled={loading}
+          style={{ marginLeft: 10 }}
+        >
           {loading ? "Processing..." : "Upload & Process"}
         </button>
         {errorMsg && (
@@ -188,7 +199,14 @@ const filteredSummary = summary.map(row =>
             <h2>2. Overview</h2>
 
             {/* Metric selector */}
-            <div style={{ marginBottom: "10px", display: "flex", gap: "16px", alignItems: "center" }}>
+            <div
+              style={{
+                marginBottom: "10px",
+                display: "flex",
+                gap: "16px",
+                alignItems: "center",
+              }}
+            >
               <div>
                 <label>Select overview metric: </label>
                 <select
@@ -202,8 +220,6 @@ const filteredSummary = summary.map(row =>
                   ))}
                 </select>
               </div>
-
-             
             </div>
 
             {/* Bar chart */}
@@ -213,20 +229,32 @@ const filteredSummary = summary.map(row =>
                 height={400}
                 data={overviewChartData}
                 margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                barCategoryGap="20%"   // auto gap between each bar
-                barGap="5%"            // auto gap if multiple bars exist
+                barCategoryGap="20%" // auto gap between each bar
+                barGap="5%" // auto gap if multiple bars exist
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="id" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="value" name={selectedMetric} barSize={30} maxBarSize={50}/>
+                <Bar
+                  dataKey="value"
+                  name={selectedMetric}
+                  barSize={30}
+                  maxBarSize={50}
+                />
               </BarChart>
             )}
-            
-            <div style={{ marginBottom: "10px", display: "flex", gap: "16px", alignItems: "center" }}>
-               {/* NEW: table controls */}
+
+            <div
+              style={{
+                marginBottom: "10px",
+                display: "flex",
+                gap: "16px",
+                alignItems: "center",
+              }}
+            >
+              {/* NEW: table controls */}
               <div>
                 <label style={{ marginRight: 8 }}>Show entries:</label>
                 <select
@@ -283,31 +311,32 @@ const filteredSummary = summary.map(row =>
               </thead>
               <tbody>
                 {visibleSummary.map((row) => (
-  <tr
-    key={row.id}
-    style={{ cursor: "pointer" }}
-    onClick={() => loadDetail(row.id)}
-  >
-    {Object.keys(row).map((col) => (
-      <td
-        key={col}
-        style={{
-          borderBottom: "1px solid #eee",
-          padding: "4px",
-        }}
-      >
-        {Array.isArray(row[col])
-          ? row[col].map((v) =>
-              typeof v === "number" ? v.toFixed(2) : v
-            ).join(", ")
-          : typeof row[col] === "number"
-          ? row[col].toFixed(2)
-          : row[col]}
-      </td>
-    ))}
-  </tr>
-))}
-
+                  <tr
+                    key={row.id}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => loadDetail(row.id)}
+                  >
+                    {Object.keys(row).map((col) => (
+                      <td
+                        key={col}
+                        style={{
+                          borderBottom: "1px solid #eee",
+                          padding: "4px",
+                        }}
+                      >
+                        {Array.isArray(row[col])
+                          ? row[col]
+                              .map((v) =>
+                                typeof v === "number" ? v.toFixed(2) : v
+                              )
+                              .join(", ")
+                          : typeof row[col] === "number"
+                          ? row[col].toFixed(2)
+                          : row[col]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
 
