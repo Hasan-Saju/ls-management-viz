@@ -1,7 +1,7 @@
 # Log Source Management Visualization
 
-![Chart](resource/charts/graph.png)
+![Chart](../ls-management-viz/resource/graph.png)
 
-![Chart](resource/charts/graph2.png)
+![Chart](../ls-management-viz/resource/graph2.png)
 
-![Chart](resource/charts/graph3.png)
+![Chart](../ls-management-viz/resource/graph3.png)
