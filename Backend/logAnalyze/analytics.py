@@ -112,11 +112,6 @@ def threshold_counts(df_clean_removed, minutes_threshold):
 def read_id_threshold_file(folder_path="data", file_name="id_thresholds.txt"):
     """
     Read data/id_thresholds.txt and return a list of dicts:
-    [
-      {"id": "A12", "threshold": 30},
-      {"id": "B55", "threshold": 120},
-      ...
-    ]
     """
     output_path = os.path.join(folder_path, file_name)
     data = []
