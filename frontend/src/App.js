@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -149,7 +148,7 @@ function App() {
     }));
   }, [detailData]);
 
-  //filtered + limited summary for table
+  //filtered and limited summary for table
   const filteredSummary = React.useMemo(() => {
     if (!summary || summary.length === 0) return [];
     if (!searchTerm.trim()) return summary;
@@ -184,12 +183,9 @@ function App() {
     const min = 10;
     const max = 200;
 
-    // Normalize value: 0 (low) → 1 (high)
     let ratio = (threshold - min) / (max - min);
     ratio = Math.min(Math.max(ratio, 0), 1);
-    // Lightness: 90% (light gray) → 5% (almost black)
     const lightness = 90 - ratio * 85;
-    // hsl(0, 0%, L%) = grayscale
     return `hsl(0, 0%, ${lightness}%)`;
   }
 
@@ -220,7 +216,7 @@ function App() {
         )}
       </section>
 
-      {/* Summary + overview chart */}
+      {/* Summary and overview chart */}
       {summary && summary.length > 0 && (
         <>
           <section
@@ -264,8 +260,8 @@ function App() {
                 height={400}
                 data={overviewChartData}
                 margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                barCategoryGap="20%" // auto gap between each bar
-                barGap="5%" // auto gap if multiple bars exist
+                barCategoryGap="20%" 
+                barGap="5%" 
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="id" />

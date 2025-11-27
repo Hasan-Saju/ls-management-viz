@@ -21,7 +21,6 @@ SUMMARY_CACHE = None
 def upload_csv(request):
     """
     POST /api/upload/
-    Body: multipart/form-data with 'file' = CSV
     Returns: summary stats and metric names for visualization
     """
     global DF_CLEAN_REMOVED_CACHE, SUMMARY_CACHE
