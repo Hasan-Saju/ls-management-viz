@@ -10,25 +10,14 @@ def load_and_preprocess(file_obj):
     Expected columns: time, count, id
     """
     df = pd.read_csv(file_obj)
-
-    # Parse time column
     df["time"] = pd.to_datetime(df["time"])
-
-    # Sort by id + time
     df = df.sort_values(["id", "time"])
-
-    # Compute time differences in minutes
     df["delta_min"] = (
         df.groupby("id")["time"].diff().dt.total_seconds() / 60.0
     )
 
-    # Subtract 10 minutes (your logic)
     df["delta_min"] = df["delta_min"] - 10
-
-    # Remove zeros
     df = df[df["delta_min"] != 0]
-
-    # Drop rows where delta_min is NaN (first event per id)
     df_clean = df.dropna(subset=["delta_min"]).copy()
 
     return df_clean
@@ -82,7 +71,6 @@ def gap_stats(group):
             stats[f"count_above_p{p}"] = 0
             # stats[f"above_p{p}"] = 0
 
-    # extreme gaps (> 99.5th percentile)
     p995 = stats["p99.5"]
     if p995 is not None:
         extreme_rows = group[group["delta_min"] > p995]
