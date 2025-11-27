@@ -26,12 +26,12 @@ function App() {
   const [thresholdResults, setThresholdResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  // NEW: state for ID-threshold bar chart
+  //state for ID-threshold bar chart
   const [idThresholdData, setIdThresholdData] = React.useState([]);
   const [idThresholdError, setIdThresholdError] = React.useState("");
   const [idThresholdLoading, setIdThresholdLoading] = React.useState(false);
 
-  // NEW: table controls
+  //table controls
   const [pageSize, setPageSize] = useState(5); // 5, 10, 20, 30
   const [searchTerm, setSearchTerm] = useState(""); // search by id
 
@@ -149,7 +149,7 @@ function App() {
     }));
   }, [detailData]);
 
-  // NEW: filtered + limited summary for table
+  //filtered + limited summary for table
   const filteredSummary = React.useMemo(() => {
     if (!summary || summary.length === 0) return [];
     if (!searchTerm.trim()) return summary;
@@ -162,14 +162,14 @@ function App() {
     return filteredSummary.slice(0, pageSize);
   }, [filteredSummary, pageSize]);
 
-  // NEW: fetch ID-threshold data for bar chart
+
+  //fetch ID-threshold data for bar chart
   const handleIdThresholdQuery = async () => {
     setIdThresholdError("");
     setIdThresholdLoading(true);
 
     try {
       const res = await axios.get(`${API_BASE}/id-thresholds/`);
-      // Django returns a list: [{ id: "A12", threshold: 30 }, ...]
       setIdThresholdData(res.data || []);
     } catch (err) {
       console.error(err);
@@ -179,7 +179,6 @@ function App() {
     }
   };
 
-  // threshold: number (0–200)
 
   function getColor(threshold) {
     const min = 10;
@@ -188,10 +187,8 @@ function App() {
     // Normalize value: 0 (low) → 1 (high)
     let ratio = (threshold - min) / (max - min);
     ratio = Math.min(Math.max(ratio, 0), 1);
-
     // Lightness: 90% (light gray) → 5% (almost black)
     const lightness = 90 - ratio * 85;
-
     // hsl(0, 0%, L%) = grayscale
     return `hsl(0, 0%, ${lightness}%)`;
   }
@@ -292,7 +289,7 @@ function App() {
                 alignItems: "center",
               }}
             >
-              {/* NEW: table controls */}
+              {/* table controls */}
               <div>
                 <label style={{ marginRight: 8 }}>Show entries:</label>
                 <select
@@ -530,8 +527,6 @@ function App() {
                     color: "#555",
                   }}
                 >
-                  {/* X-axis: <strong>id</strong>, Y-axis:{" "}
-                  <strong>threshold (minutes)</strong> */}
                 </div>
 
                 <div
@@ -568,7 +563,7 @@ function App() {
                             flexDirection: "column",
                             alignItems: "center",
                             minWidth: "30px",
-                            height: "100%", // take full chart area height
+                            height: "100%", 
                             justifyContent: "flex-end", // bar sticks to bottom
                           }}
                         >
@@ -577,7 +572,7 @@ function App() {
                             style={{
                               width: "100%",
                               height: `${barHeight}px`,
-                              background: getColor(thresholdVal), // ← dynamic color
+                              background: getColor(thresholdVal), // dynamic color
                               borderRadius: "4px 4px 0 0",
                               transition: "height 0.3s ease",
                             }}
@@ -589,9 +584,9 @@ function App() {
                               marginTop: "4px",
                               fontSize: "0.7rem",
                               textAlign: "center",
-                              whiteSpace: "nowrap", // ⬅️ keep whole id on one line
-                              overflow: "hidden", // ⬅️ if it's too long, hide the overflow
-                              textOverflow: "ellipsis", // ⬅️ show "..." if it's too long
+                              whiteSpace: "nowrap", 
+                              overflow: "hidden", 
+                              textOverflow: "ellipsis",
                             }}
                           >
                             {row.id}
