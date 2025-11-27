@@ -26,6 +26,10 @@ function App() {
   const [thresholdResults, setThresholdResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  // NEW: state for ID-threshold bar chart
+  const [idThresholdData, setIdThresholdData] = React.useState([]);
+  const [idThresholdError, setIdThresholdError] = React.useState("");
+  const [idThresholdLoading, setIdThresholdLoading] = React.useState(false);
 
   // NEW: table controls
   const [pageSize, setPageSize] = useState(5); // 5, 10, 20, 30
@@ -157,6 +161,40 @@ function App() {
   const visibleSummary = React.useMemo(() => {
     return filteredSummary.slice(0, pageSize);
   }, [filteredSummary, pageSize]);
+
+  // NEW: fetch ID-threshold data for bar chart
+  const handleIdThresholdQuery = async () => {
+    setIdThresholdError("");
+    setIdThresholdLoading(true);
+
+    try {
+      const res = await axios.get(`${API_BASE}/id-thresholds/`);
+      // Django returns a list: [{ id: "A12", threshold: 30 }, ...]
+      setIdThresholdData(res.data || []);
+    } catch (err) {
+      console.error(err);
+      setIdThresholdError("Failed to fetch id-threshold data.");
+    } finally {
+      setIdThresholdLoading(false);
+    }
+  };
+
+  // threshold: number (0–200)
+
+  function getColor(threshold) {
+    const min = 10;
+    const max = 200;
+
+    // Normalize value: 0 (low) → 1 (high)
+    let ratio = (threshold - min) / (max - min);
+    ratio = Math.min(Math.max(ratio, 0), 1);
+
+    // Lightness: 90% (light gray) → 5% (almost black)
+    const lightness = 90 - ratio * 85;
+
+    // hsl(0, 0%, L%) = grayscale
+    return `hsl(0, 0%, ${lightness}%)`;
+  }
 
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
@@ -380,7 +418,7 @@ function App() {
             </section>
           )}
 
-          {/* Threshold query */}
+          {/* Threshold query
           <section
             style={{
               marginBottom: "20px",
@@ -454,6 +492,131 @@ function App() {
                   ))}
                 </tbody>
               </table>
+            )}
+          </section> */}
+
+          {/* Threshold–ID Bar Chart */}
+          {/* ID–Threshold Bar Chart */}
+          <section
+            style={{
+              marginBottom: "20px",
+              padding: "10px",
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+            }}
+          >
+            <h2>5. Threshold per ID (Bar Chart)</h2>
+
+            <div style={{ marginBottom: "10px" }}>
+              <button
+                onClick={handleIdThresholdQuery}
+                disabled={idThresholdLoading}
+              >
+                {idThresholdLoading ? "Loading..." : "Load Thresholds"}
+              </button>
+              {idThresholdError && (
+                <span style={{ color: "red", marginLeft: "10px" }}>
+                  {idThresholdError}
+                </span>
+              )}
+            </div>
+
+            {idThresholdData && idThresholdData.length > 0 ? (
+              <>
+                <div
+                  style={{
+                    marginBottom: "8px",
+                    fontSize: "0.85rem",
+                    color: "#555",
+                  }}
+                >
+                  {/* X-axis: <strong>id</strong>, Y-axis:{" "}
+                  <strong>threshold (minutes)</strong> */}
+                </div>
+
+                <div
+                  style={{
+                    border: "1px solid #eee",
+                    borderRadius: "8px",
+                    padding: "10px",
+                    overflowX: "auto",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-end",
+                      height: "220px",
+                      gap: "8px",
+                    }}
+                  >
+                    {idThresholdData.map((row) => {
+                      const maxThreshold = 200; // 10–200
+                      const maxBarHeight = 180; // px, inside the 220px container
+                      const thresholdVal = Number(row.threshold) || 0;
+
+                      const barHeight = Math.max(
+                        8, // minimum visible height
+                        (thresholdVal / maxThreshold) * maxBarHeight
+                      );
+
+                      return (
+                        <div
+                          key={row.id}
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            minWidth: "30px",
+                            height: "100%", // take full chart area height
+                            justifyContent: "flex-end", // bar sticks to bottom
+                          }}
+                        >
+                          {/* bar */}
+                          <div
+                            style={{
+                              width: "100%",
+                              height: `${barHeight}px`,
+                              background: getColor(thresholdVal), // ← dynamic color
+                              borderRadius: "4px 4px 0 0",
+                              transition: "height 0.3s ease",
+                            }}
+                            title={`id: ${row.id}\nthreshold: ${thresholdVal}`}
+                          />
+                          {/* id label */}
+                          <div
+                            style={{
+                              marginTop: "4px",
+                              fontSize: "0.7rem",
+                              textAlign: "center",
+                              whiteSpace: "nowrap", // ⬅️ keep whole id on one line
+                              overflow: "hidden", // ⬅️ if it's too long, hide the overflow
+                              textOverflow: "ellipsis", // ⬅️ show "..." if it's too long
+                            }}
+                          >
+                            {row.id}
+                          </div>
+                          {/* threshold value */}
+                          <div
+                            style={{
+                              fontSize: "0.7rem",
+                              color: "#555",
+                            }}
+                          >
+                            {thresholdVal}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            ) : (
+              !idThresholdLoading && (
+                <p style={{ fontSize: "0.85rem", color: "#666" }}>
+                  No data yet. Click <strong>Load Thresholds</strong>.
+                </p>
+              )
             )}
           </section>
         </>

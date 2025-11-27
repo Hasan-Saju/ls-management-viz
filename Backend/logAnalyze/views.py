@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .analytics import (
     load_and_preprocess,
+    read_id_threshold_file,
     remove_high_outliers_iqr,
     build_summary,
     threshold_counts,
@@ -108,3 +109,19 @@ def threshold_view(request):
 
     result = threshold_counts(DF_CLEAN_REMOVED_CACHE, threshold)
     return JsonResponse({"threshold": threshold, "results": result}, safe=False)
+
+
+def get_id_thresholds(request):
+    """
+    Django view to return the parsed id-threshold data as JSON.
+    This will be consumed by the frontend for visualization.
+    """
+    try:
+        data = read_id_threshold_file(folder_path="data", file_name="id_thresholds.txt")
+        return JsonResponse(data, safe=False, status=200)
+
+    except FileNotFoundError:
+        return JsonResponse({"error": "id_thresholds.txt not found"}, status=404)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

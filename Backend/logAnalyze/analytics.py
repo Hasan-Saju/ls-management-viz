@@ -1,4 +1,5 @@
 # analyzer/analytics.py
+import os
 import pandas as pd
 import numpy as np
 
@@ -119,11 +120,37 @@ def threshold_counts(df_clean_removed, minutes_threshold):
     return result.to_dict(orient="records")
 
 
+
+def read_id_threshold_file(folder_path="data", file_name="id_thresholds.txt"):
+    """
+    Read data/id_thresholds.txt and return a list of dicts:
+    [
+      {"id": "A12", "threshold": 30},
+      {"id": "B55", "threshold": 120},
+      ...
+    ]
+    """
+    output_path = os.path.join(folder_path, file_name)
+    data = []
+
+    with open(output_path, "r") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            id_str, th_str = line.split(",")
+            data.append({"id": id_str, "threshold": int(th_str)})
+
+    return data
+
+
+
 def get_id_series(df_clean_removed, id_value):
     """
     Get detailed time series for one id (for plotting).
     """
     sub = df_clean_removed[df_clean_removed["id"] == id_value].copy()
+    print(df_clean_removed)
     sub = sub.sort_values("time")
 
     return {
