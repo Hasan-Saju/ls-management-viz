@@ -22,6 +22,7 @@ const DetailLineChart = ({
   const [showGrid, setShowGrid] = useState(true);
   const [showAvgLine, setShowAvgLine] = useState(true);
   const [curveType, setCurveType] = useState("monotone"); // "monotone", "linear", "step"
+    const [threshold, setThreshold] = useState(0); // threshold for anomaly detection
 
   // Prepare chart data
   const chartData = useMemo(() => {
@@ -56,6 +57,7 @@ const DetailLineChart = ({
     const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
     const stdDev = Math.sqrt(variance);
     const threshold = mean + (2 * stdDev);
+    setThreshold(threshold);
     
     return chartData.filter(d => d.delta_min > threshold);
   }, [chartData, stats]);
@@ -336,10 +338,10 @@ const DetailLineChart = ({
           }}>
             {[
               { label: "Average", value: stats.avg, icon: "📊", color: "#8b5cf6" },
-              { label: "Median", value: stats.median, icon: "📈", color: "#06b6d4" },
               { label: "Maximum", value: stats.max, icon: "⬆️", color: "#ef4444" },
               { label: "Minimum", value: stats.min, icon: "⬇️", color: "#10b981" },
               { label: "Data Points", value: stats.count, icon: "🔢", color: "#f59e0b", noUnit: true },
+              { label: "Threshold", value: threshold, icon: "📈", color: "#06b6d4" },
               { label: "Anomalies", value: anomalies.length, icon: "⚠️", color: "#dc2626", noUnit: true }
             ].map((stat, idx) => (
               <div 

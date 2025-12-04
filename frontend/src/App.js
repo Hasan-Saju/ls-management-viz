@@ -236,10 +236,8 @@ function App() {
             borderRadius: "8px",
           }}
         >
-          {/* Add the new area chart */}
-          <MetricsAreaChart data={summary} initialMetric="p99" />
 
-          {/* You can keep your existing bar chart below or replace it */}
+          <MetricsAreaChart data={summary} initialMetric="p99" />
         </section>
       )}
 

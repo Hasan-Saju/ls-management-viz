@@ -14,12 +14,12 @@ const SummaryTable = ({
     basic: {
       title: "Basic Stats",
       metrics: ["id", "count"],
-      color: "#f0f9ff"
+      color: "#ddd6fe"
     },
     gaps: {
       title: "Gap Statistics",
       metrics: ["min_gap", "max_gap", "mean_gap", "median_gap", "std_gap"],
-      color: "#fefce8"
+      color: "#fbcfe8"
     },
     percentiles: {
       title: "Percentiles & Counts",
@@ -30,7 +30,7 @@ const SummaryTable = ({
         "p99", "count_above_p99",
         "p99.5", "count_above_p99.5"
       ],
-      color: "#fef2f2"
+      color: "#fce7f3"
     }
   };
 
@@ -109,180 +109,301 @@ const SummaryTable = ({
   };
 
   if (!data || data.length === 0) {
-    return <div style={{ padding: "20px", color: "#666" }}>No data available</div>;
+    return (
+      <div style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        padding: "24px",
+        borderRadius: "16px",
+        boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
+        marginBottom: "20px"
+      }}>
+        <div style={{
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          padding: "40px",
+          borderRadius: "12px",
+          textAlign: "center",
+          color: "#6b7280"
+        }}>
+          <div style={{ fontSize: "3rem", marginBottom: "16px" }}>📊</div>
+          <p style={{ fontSize: "1.1rem", fontWeight: "500", margin: 0 }}>
+            No data available. Upload a CSV file to get started.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const columns = Object.keys(data[0]);
 
   return (
-    <div style={{ fontFamily: "sans-serif" }}>
-      {/* Controls */}
-      <div style={{ 
-        display: "flex", 
-        gap: "20px", 
-        marginBottom: "16px",
-        alignItems: "center",
-        flexWrap: "wrap"
+    <div style={{ 
+      fontFamily: "sans-serif",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      padding: "24px",
+      borderRadius: "16px",
+      boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
+      marginBottom: "20px"
+    }}>
+      {/* Header */}
+      <div style={{
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        padding: "20px",
+        borderRadius: "12px",
+        marginBottom: "20px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
       }}>
-        <div>
-          <label style={{ marginRight: "8px", fontWeight: "500" }}>
-            Show entries:
-          </label>
-          <select
-            value={pageSize}
-            onChange={(e) => setPageSize(parseInt(e.target.value, 10))}
-            style={{
-              padding: "6px 10px",
-              borderRadius: "4px",
-              border: "1px solid #d1d5db"
-            }}
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={30}>30</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
-        
-        <div>
-          <label style={{ marginRight: "8px", fontWeight: "500" }}>
-            Search by ID:
-          </label>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="e.g. 10014"
-            style={{
-              padding: "6px 10px",
-              borderRadius: "4px",
-              border: "1px solid #d1d5db",
-              minWidth: "150px"
-            }}
-          />
-        </div>
-
-        <div style={{ marginLeft: "auto", color: "#6b7280", fontSize: "0.9rem" }}>
-          Showing {visibleData.length} of {filteredData.length} filtered 
-          ({data.length} total)
-        </div>
-      </div>
-
-      {/* Legend */}
-      <div style={{ 
-        display: "flex", 
-        gap: "16px", 
-        marginBottom: "12px",
-        fontSize: "0.85rem",
-        flexWrap: "wrap"
-      }}>
-        {Object.entries(metricGroups).map(([key, group]) => (
-          <div key={key} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <div style={{
-              width: "16px",
-              height: "16px",
-              backgroundColor: group.color,
-              border: "1px solid #e5e7eb",
-              borderRadius: "2px"
-            }} />
-            <span style={{ color: "#374151" }}>{group.title}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Table */}
-      <div style={{ 
-        overflowX: "auto", 
-        border: "1px solid #e5e7eb",
-        borderRadius: "8px",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
-      }}>
-        <table style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          fontSize: "0.9rem"
+        <h3 style={{ 
+          margin: "0 0 16px 0", 
+          color: "#1f2937",
+          fontSize: "1.5rem",
+          fontWeight: "700"
         }}>
-          <thead>
-            <tr>
-              {columns.map((col) => (
-                <th
-                  key={col}
-                  onClick={() => handleSort(col)}
-                  style={{
-                    backgroundColor: getColumnColor(col),
-                    borderBottom: "2px solid #d1d5db",
-                    borderRight: "1px solid #e5e7eb",
-                    textAlign: col === "id" ? "left" : "right",
-                    padding: "12px 16px",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                    userSelect: "none",
-                    position: "sticky",
-                    top: 0,
-                    whiteSpace: "nowrap"
-                  }}
-                  title={`Click to sort by ${formatColumnName(col)}`}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "4px", justifyContent: col === "id" ? "flex-start" : "flex-end" }}>
-                    {formatColumnName(col)}
-                    {sortConfig.key === col && (
-                      <span style={{ fontSize: "0.75rem" }}>
-                        {sortConfig.direction === 'asc' ? '▲' : '▼'}
-                      </span>
-                    )}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {visibleData.map((row, idx) => (
-              <tr
-                key={row.id}
-                onClick={() => onRowClick && onRowClick(row.id)}
-                style={{
-                  cursor: onRowClick ? "pointer" : "default",
-                  backgroundColor: idx % 2 === 0 ? "#ffffff" : "#f9fafb",
-                  transition: "background-color 0.15s"
-                }}
-                onMouseEnter={(e) => {
-                  if (onRowClick) e.currentTarget.style.backgroundColor = "#f3f4f6";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = idx % 2 === 0 ? "#ffffff" : "#f9fafb";
-                }}
-              >
+          📋 Summary Table
+        </h3>
+
+        {/* Controls */}
+        <div style={{ 
+          display: "flex", 
+          gap: "20px", 
+          marginBottom: "16px",
+          alignItems: "center",
+          flexWrap: "wrap"
+        }}>
+          <div>
+            <label style={{ 
+              display: "block",
+              marginBottom: "6px",
+              fontWeight: "600",
+              color: "#374151",
+              fontSize: "0.85rem"
+            }}>
+              Show entries:
+            </label>
+            <select
+              value={pageSize}
+              onChange={(e) => setPageSize(parseInt(e.target.value, 10))}
+              style={{
+                padding: "8px 12px",
+                borderRadius: "6px",
+                border: "2px solid #e5e7eb",
+                fontSize: "0.9rem",
+                cursor: "pointer",
+                backgroundColor: "#ffffff",
+                fontWeight: "500"
+              }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={30}>30</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+          
+          <div>
+            <label style={{ 
+              display: "block",
+              marginBottom: "6px",
+              fontWeight: "600",
+              color: "#374151",
+              fontSize: "0.85rem"
+            }}>
+              Search by ID:
+            </label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="e.g. 10014"
+              style={{
+                padding: "8px 12px",
+                borderRadius: "6px",
+                border: "2px solid #e5e7eb",
+                minWidth: "150px",
+                fontSize: "0.9rem",
+                outline: "none",
+                transition: "border-color 0.2s"
+              }}
+              onFocus={(e) => e.target.style.borderColor = "#8b5cf6"}
+              onBlur={(e) => e.target.style.borderColor = "#e5e7eb"}
+            />
+          </div>
+
+          <div style={{ 
+            marginLeft: "auto", 
+            padding: "8px 16px",
+            backgroundColor: "#f3e8ff",
+            borderRadius: "6px",
+            border: "2px solid #8b5cf630"
+          }}>
+            <span style={{ 
+              color: "#6b7280", 
+              fontSize: "0.85rem",
+              fontWeight: "500"
+            }}>
+              Showing <strong style={{ color: "#7c3aed" }}>{visibleData.length}</strong> of{" "}
+              <strong style={{ color: "#7c3aed" }}>{filteredData.length}</strong> filtered
+              ({data.length} total)
+            </span>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div style={{ 
+          display: "flex", 
+          gap: "16px", 
+          fontSize: "0.85rem",
+          flexWrap: "wrap"
+        }}>
+          {Object.entries(metricGroups).map(([key, group]) => (
+            <div key={key} style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "6px",
+              padding: "6px 12px",
+              backgroundColor: group.color,
+              borderRadius: "6px",
+              border: "2px solid #8b5cf620"
+            }}>
+              <div style={{
+                width: "12px",
+                height: "12px",
+                backgroundColor: group.color,
+                border: "2px solid #7c3aed",
+                borderRadius: "2px"
+              }} />
+              <span style={{ 
+                color: "#374151",
+                fontWeight: "600"
+              }}>
+                {group.title}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Table Container */}
+      <div style={{
+        backgroundColor: "rgba(255, 255, 255, 0.98)",
+        borderRadius: "12px",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+        overflow: "hidden"
+      }}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: "0.9rem"
+          }}>
+            <thead>
+              <tr>
                 {columns.map((col) => (
-                  <td
+                  <th
                     key={col}
+                    onClick={() => handleSort(col)}
                     style={{
-                      borderBottom: "1px solid #e5e7eb",
-                      borderRight: "1px solid #f3f4f6",
-                      padding: "10px 16px",
+                      backgroundColor: getColumnColor(col),
+                      borderBottom: "3px solid #8b5cf6",
+                      borderRight: "1px solid #e5e7eb",
                       textAlign: col === "id" ? "left" : "right",
-                      fontFamily: col === "id" ? "inherit" : "monospace",
-                      fontWeight: col === "id" ? "500" : "normal"
+                      padding: "14px 16px",
+                      fontWeight: "700",
+                      cursor: "pointer",
+                      userSelect: "none",
+                      position: "sticky",
+                      top: 0,
+                      whiteSpace: "nowrap",
+                      transition: "background-color 0.2s",
+                      color: "#374151"
+                    }}
+                    title={`Click to sort by ${formatColumnName(col)}`}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#c4b5fd";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = getColumnColor(col);
                     }}
                   >
-                    {formatValue(row[col], col)}
-                  </td>
+                    <div style={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      gap: "6px", 
+                      justifyContent: col === "id" ? "flex-start" : "flex-end" 
+                    }}>
+                      {formatColumnName(col)}
+                      {sortConfig.key === col && (
+                        <span style={{ 
+                          fontSize: "0.75rem",
+                          color: "#8b5cf6",
+                          fontWeight: "bold"
+                        }}>
+                          {sortConfig.direction === 'asc' ? '▲' : '▼'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {visibleData.map((row, idx) => (
+                <tr
+                  key={row.id}
+                  onClick={() => onRowClick && onRowClick(row.id)}
+                  style={{
+                    cursor: onRowClick ? "pointer" : "default",
+                    backgroundColor: idx % 2 === 0 ? "#ffffff" : "#f9fafb",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseEnter={(e) => {
+                    if (onRowClick) {
+                      e.currentTarget.style.backgroundColor = "#f3e8ff";
+                      e.currentTarget.style.transform = "scale(1.01)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = idx % 2 === 0 ? "#ffffff" : "#f9fafb";
+                    e.currentTarget.style.transform = "scale(1)";
+                  }}
+                >
+                  {columns.map((col) => (
+                    <td
+                      key={col}
+                      style={{
+                        borderBottom: "1px solid #e5e7eb",
+                        borderRight: "1px solid #f3f4f6",
+                        padding: "12px 16px",
+                        textAlign: col === "id" ? "left" : "right",
+                        fontFamily: col === "id" ? "inherit" : "monospace",
+                        fontWeight: col === "id" ? "600" : "normal",
+                        color: col === "id" ? "#7c3aed" : "#374151"
+                      }}
+                    >
+                      {formatValue(row[col], col)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      {/* Footer */}
       {onRowClick && (
-        <p style={{ 
-          marginTop: "12px", 
-          fontSize: "0.85rem", 
+        <div style={{
+          marginTop: "16px",
+          padding: "12px 18px",
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          borderRadius: "8px",
+          fontSize: "0.85rem",
           color: "#6b7280",
-          fontStyle: "italic"
+          textAlign: "center",
+          border: "2px solid #8b5cf630"
         }}>
-          💡 Click any row to view detailed visualization
-        </p>
+          💡 <strong style={{ color: "#7c3aed" }}>Tip:</strong> Click any row to view detailed time gap visualization
+        </div>
       )}
     </div>
   );
