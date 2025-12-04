@@ -193,7 +193,35 @@ function App() {
 
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <h1>Log Management Tool</h1>
+
+      {/* Header */}
+      <div style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        padding: "32px 24px",
+        borderRadius: "16px",
+        marginBottom: "24px",
+        boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
+        textAlign: "center"
+      }}>
+        <h1 style={{
+          margin: 0,
+          color: "white",
+          fontSize: "2.5rem",
+          fontWeight: "700",
+          textShadow: "0 2px 10px rgba(0,0,0,0.2)",
+          letterSpacing: "-0.5px"
+        }}>
+          📊 Log Management Tool
+        </h1>
+        <p style={{
+          margin: "12px 0 0 0",
+          color: "rgba(255, 255, 255, 0.9)",
+          fontSize: "1.1rem",
+          fontWeight: "400"
+        }}>
+          Analyze events and Visualize your data
+        </p>
+      </div>
 
       <section style={{ marginBottom: "20px" }}>
         <UploadCSV onUpload={handleUpload} loading={loading} error={errorMsg} />
