@@ -11,6 +11,8 @@ import {
   Line,
   Legend,
 } from "recharts";
+import SummaryTable from "./components/SummaryTable";
+import MetricsAreaChart from "./components/MetricsAreaChart";
 
 const API_BASE = "http://localhost:8000/api";
 
@@ -216,166 +218,37 @@ function App() {
         )}
       </section>
 
+
+{summary && summary.length > 0 && (
+  <section style={{
+    marginBottom: "20px",
+    padding: "10px",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+  }}>
+    <h2>2. Overview</h2>
+    
+    {/* Add the new area chart */}
+    <MetricsAreaChart 
+      data={summary} 
+      initialMetric="p99" 
+    />
+    
+    {/* You can keep your existing bar chart below or replace it */}
+  </section>
+)}
+
+      <SummaryTable 
+  data={summary}
+  onRowClick={loadDetail}
+  initialPageSize={5}
+/>
+
+
+
       {/* Summary and overview chart */}
       {summary && summary.length > 0 && (
         <>
-          <section
-            style={{
-              marginBottom: "20px",
-              padding: "10px",
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-            }}
-          >
-            <h2>2. Overview</h2>
-
-            {/* Metric selector */}
-            <div
-              style={{
-                marginBottom: "10px",
-                display: "flex",
-                gap: "16px",
-                alignItems: "center",
-              }}
-            >
-              <div>
-                <label>Select overview metric: </label>
-                <select
-                  value={selectedMetric}
-                  onChange={(e) => setSelectedMetric(e.target.value)}
-                >
-                  {metrics.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Bar chart */}
-            {overviewChartData.length > 0 && (
-              <BarChart
-                width={1200}
-                height={400}
-                data={overviewChartData}
-                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                barCategoryGap="20%" 
-                barGap="5%" 
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="id" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar
-                  dataKey="value"
-                  name={selectedMetric}
-                  barSize={30}
-                  maxBarSize={50}
-                />
-              </BarChart>
-            )}
-
-            <div
-              style={{
-                marginBottom: "10px",
-                display: "flex",
-                gap: "16px",
-                alignItems: "center",
-              }}
-            >
-              {/* table controls */}
-              <div>
-                <label style={{ marginRight: 8 }}>Show entries:</label>
-                <select
-                  value={pageSize}
-                  onChange={(e) => setPageSize(parseInt(e.target.value, 10))}
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={30}>30</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ marginRight: 8 }}>Search by ID:</label>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="e.g. 10014"
-                  style={{ padding: "4px 8px" }}
-                />
-              </div>
-            </div>
-
-            {/* Summary table */}
-            <h3 style={{ marginTop: "20px" }}>Summary Table</h3>
-            <p style={{ fontSize: "0.85rem", color: "#555" }}>
-              Showing {visibleSummary.length} of {filteredSummary.length}{" "}
-              filtered rows (total {summary.length}).
-            </p>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                fontSize: "0.9rem",
-              }}
-            >
-              <thead>
-                <tr>
-                  {Object.keys(summary[0]).map((col) => (
-                    <th
-                      key={col}
-                      style={{
-                        borderBottom: "1px solid #ccc",
-                        textAlign: "left",
-                        padding: "4px",
-                      }}
-                    >
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {visibleSummary.map((row) => (
-                  <tr
-                    key={row.id}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => loadDetail(row.id)}
-                  >
-                    {Object.keys(row).map((col) => (
-                      <td
-                        key={col}
-                        style={{
-                          borderBottom: "1px solid #eee",
-                          padding: "4px",
-                        }}
-                      >
-                        {Array.isArray(row[col])
-                          ? row[col]
-                              .map((v) =>
-                                typeof v === "number" ? v.toFixed(2) : v
-                              )
-                              .join(", ")
-                          : typeof row[col] === "number"
-                          ? row[col].toFixed(2)
-                          : row[col]}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <p style={{ marginTop: "10px" }}>
-              Click a row to see detailed visualization for that id.
-            </p>
-          </section>
-
           {/* Detail view */}
           {selectedId && detailData && (
             <section
@@ -617,3 +490,4 @@ function App() {
 }
 
 export default App;
+
