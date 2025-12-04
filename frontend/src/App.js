@@ -15,6 +15,7 @@ import SummaryTable from "./components/SummaryTable";
 import MetricsAreaChart from "./components/MetricsAreaChart";
 import ThresholdBarChart from "./components/ThresholdBarChart";
 import DetailLineChart from "./components/DetailLineChart";
+import UploadCSV from "./components/UploadCSV";
 
 const API_BASE = "http://localhost:8000/api";
 
@@ -44,16 +45,15 @@ function App() {
   };
 
   // Upload CSV to backend
-  const handleUpload = async () => {
-    if (!file) {
+  const handleUpload = async (uploadedFile) => {
+    if (!uploadedFile) {
       setErrorMsg("Please select a CSV file first.");
       return;
     }
     setErrorMsg("");
     setLoading(true);
-
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", uploadedFile);
 
     try {
       const res = await axios.post(`${API_BASE}/upload/`, formData, {
@@ -193,29 +193,10 @@ function App() {
 
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <h1>Event Gap Analyzer</h1>
+      <h1>Log Management Tool</h1>
 
-      {/* Upload section */}
-      <section
-        style={{
-          marginBottom: "20px",
-          padding: "10px",
-          border: "1px solid #ddd",
-          borderRadius: "8px",
-        }}
-      >
-        <h2>1. Upload CSV</h2>
-        <input type="file" accept=".csv" onChange={handleFileChange} />
-        <button
-          onClick={handleUpload}
-          disabled={loading}
-          style={{ marginLeft: 10 }}
-        >
-          {loading ? "Processing..." : "Upload & Process"}
-        </button>
-        {errorMsg && (
-          <div style={{ color: "red", marginTop: "10px" }}>{errorMsg}</div>
-        )}
+      <section style={{ marginBottom: "20px" }}>
+        <UploadCSV onUpload={handleUpload} loading={loading} error={errorMsg} />
       </section>
 
       {summary && summary.length > 0 && (
