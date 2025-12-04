@@ -13,6 +13,8 @@ import {
 } from "recharts";
 import SummaryTable from "./components/SummaryTable";
 import MetricsAreaChart from "./components/MetricsAreaChart";
+import ThresholdBarChart from "./components/ThresholdBarChart";
+import DetailLineChart from "./components/DetailLineChart";
 
 const API_BASE = "http://localhost:8000/api";
 
@@ -163,7 +165,6 @@ function App() {
     return filteredSummary.slice(0, pageSize);
   }, [filteredSummary, pageSize]);
 
-
   //fetch ID-threshold data for bar chart
   const handleIdThresholdQuery = async () => {
     setIdThresholdError("");
@@ -179,7 +180,6 @@ function App() {
       setIdThresholdLoading(false);
     }
   };
-
 
   function getColor(threshold) {
     const min = 10;
@@ -218,33 +218,27 @@ function App() {
         )}
       </section>
 
+      {summary && summary.length > 0 && (
+        <section
+          style={{
+            marginBottom: "20px",
+            padding: "10px",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+          }}
+        >
+          {/* Add the new area chart */}
+          <MetricsAreaChart data={summary} initialMetric="p99" />
 
-{summary && summary.length > 0 && (
-  <section style={{
-    marginBottom: "20px",
-    padding: "10px",
-    border: "1px solid #ddd",
-    borderRadius: "8px",
-  }}>
-    <h2>2. Overview</h2>
-    
-    {/* Add the new area chart */}
-    <MetricsAreaChart 
-      data={summary} 
-      initialMetric="p99" 
-    />
-    
-    {/* You can keep your existing bar chart below or replace it */}
-  </section>
-)}
+          {/* You can keep your existing bar chart below or replace it */}
+        </section>
+      )}
 
-      <SummaryTable 
-  data={summary}
-  onRowClick={loadDetail}
-  initialPageSize={5}
-/>
-
-
+      <SummaryTable
+        data={summary}
+        onRowClick={loadDetail}
+        initialPageSize={5}
+      />
 
       {/* Summary and overview chart */}
       {summary && summary.length > 0 && (
@@ -258,151 +252,32 @@ function App() {
                 border: "1px solid #ddd",
                 borderRadius: "8px",
               }}
-            >
-              <h2>3. Detail for ID: {selectedId}</h2>
-              {detailChartData.length > 0 ? (
-                <LineChart
-                  width={900}
-                  height={300}
-                  data={detailChartData}
-                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="time" tick={{ fontSize: 10 }} />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="delta_min"
-                    name="delta_min (minutes)"
-                  />
-                </LineChart>
-              ) : (
-                <p>No data for this id.</p>
-              )}
-            </section>
+            ></section>
           )}
 
-          {/* ID–Threshold Bar Chart */}
           <section
             style={{
               marginBottom: "20px",
-              padding: "10px",
-              border: "1px solid #ddd",
-              borderRadius: "8px",
             }}
           >
-            <h2>5. Threshold per ID (Bar Chart)</h2>
+            <ThresholdBarChart
+              data={idThresholdData}
+              onLoadData={handleIdThresholdQuery}
+              loading={idThresholdLoading}
+              error={idThresholdError}
+            />
 
-            <div style={{ marginBottom: "10px" }}>
-              <button
-                onClick={handleIdThresholdQuery}
-                disabled={idThresholdLoading}
-              >
-                {idThresholdLoading ? "Loading..." : "Load Thresholds"}
-              </button>
-              {idThresholdError && (
-                <span style={{ color: "red", marginLeft: "10px" }}>
-                  {idThresholdError}
-                </span>
-              )}
-            </div>
-
-            {idThresholdData && idThresholdData.length > 0 ? (
-              <>
-                <div
-                  style={{
-                    marginBottom: "8px",
-                    fontSize: "0.85rem",
-                    color: "#555",
+            {selectedId && detailData && (
+              <section style={{ marginBottom: "20px" }}>
+                <DetailLineChart
+                  selectedId={selectedId}
+                  detailData={detailData}
+                  onClose={() => {
+                    setSelectedId(null);
+                    setDetailData(null);
                   }}
-                >
-                </div>
-
-                <div
-                  style={{
-                    border: "1px solid #eee",
-                    borderRadius: "8px",
-                    padding: "10px",
-                    overflowX: "auto",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-end",
-                      height: "220px",
-                      gap: "8px",
-                    }}
-                  >
-                    {idThresholdData.map((row) => {
-                      const maxThreshold = 200; // 10–200
-                      const maxBarHeight = 180; // px, inside the 220px container
-                      const thresholdVal = Number(row.threshold) || 0;
-
-                      const barHeight = Math.max(
-                        8, // minimum visible height
-                        (thresholdVal / maxThreshold) * maxBarHeight
-                      );
-
-                      return (
-                        <div
-                          key={row.id}
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            minWidth: "30px",
-                            height: "100%", 
-                            justifyContent: "flex-end", // bar sticks to bottom
-                          }}
-                        >
-                          {/* bar */}
-                          <div
-                            style={{
-                              width: "100%",
-                              height: `${barHeight}px`,
-                              background: getColor(thresholdVal), // dynamic color
-                              borderRadius: "4px 4px 0 0",
-                              transition: "height 0.3s ease",
-                            }}
-                            title={`id: ${row.id}\nthreshold: ${thresholdVal}`}
-                          />
-                          {/* id label */}
-                          <div
-                            style={{
-                              marginTop: "4px",
-                              fontSize: "0.7rem",
-                              textAlign: "center",
-                              whiteSpace: "nowrap", 
-                              overflow: "hidden", 
-                              textOverflow: "ellipsis",
-                            }}
-                          >
-                            {row.id}
-                          </div>
-                          {/* threshold value */}
-                          <div
-                            style={{
-                              fontSize: "0.7rem",
-                              color: "#555",
-                            }}
-                          >
-                            {thresholdVal}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </>
-            ) : (
-              !idThresholdLoading && (
-                <p style={{ fontSize: "0.85rem", color: "#666" }}>
-                  No data yet. Click <strong>Load Thresholds</strong>.
-                </p>
-              )
+                />
+              </section>
             )}
           </section>
         </>
@@ -412,4 +287,3 @@ function App() {
 }
 
 export default App;
-
