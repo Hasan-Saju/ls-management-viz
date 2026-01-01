@@ -1,4 +1,3 @@
-# analyzer/views.py
 import json
 
 from django.http import JsonResponse
@@ -13,7 +12,7 @@ from .analytics import (
     get_id_series,
 )
 
-# Simple in-memory cache for demo purposes
+
 DF_CLEAN_REMOVED_CACHE = None
 SUMMARY_CACHE = None
 
@@ -22,7 +21,6 @@ SUMMARY_CACHE = None
 def upload_csv(request):
     """
     POST /api/upload/
-    Body: multipart/form-data with 'file' = CSV
     Returns: summary stats and metric names for visualization
     """
     global DF_CLEAN_REMOVED_CACHE, SUMMARY_CACHE
@@ -44,7 +42,6 @@ def upload_csv(request):
 
         metric_keys = []
         if summary:
-            # all keys except 'id' and 'times' are numeric metrics
             sample = summary[0]
             metric_keys = [
                 k for k in sample.keys()
@@ -80,7 +77,6 @@ def detail_view(request, id_value):
     if DF_CLEAN_REMOVED_CACHE is None:
         return JsonResponse({"error": "No data processed yet"}, status=400)
 
-    # id might be numeric or string; try both
     try:
         id_int = int(id_value)
     except ValueError:

@@ -1,7 +1,11 @@
 # Log Source Management Visualization
 
-![Chart](resource/graph.png)
+![Chart](resource/LandingTop.png)
 
-![Chart](resource/graph2.png)
+![Chart](resource/Metric.png)
 
-![Chart](resource/graph3.png)
+![Chart](resource/SummaryTable.png)
+
+![Chart](resource/Threshold.png)
+
+![Chart](resource/Detail.png)
